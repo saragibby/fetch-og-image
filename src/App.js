@@ -1,6 +1,9 @@
 import "./App.css";
 
-import fetch from "isomorphic-unfetch";
+import fetch from "node-fetch";
+import { useState } from "react";
+
+import fetchMeta from "fetch-meta-tags";
 
 // const metascraper = require("metascraper")([require("metascraper-image")()]);
 
@@ -17,76 +20,44 @@ headers.append("Accept", "text/html");
 headers.append("Access-Control-Allow-Origin", "http://localhost:3000");
 headers.append("Access-Control-Allow-Credentials", "true");
 
-headers.append("GET", "POST", "OPTIONS");
+headers.append("GET", "OPTIONS");
 
 function App() {
+  const [inputFetchResponse, setInputFetchResponse] = useState("");
+
   const fetchUrlImage = async () => {
-    const r = await fetch(targetUrl, {
+    const response = await fetch(targetUrl, {
       mode: "no-cors",
       referrerPolicy: "no-referrer",
-      headers: {
-        "Content-Type": "text/html",
-        "Access-Control-Allow-Headers": "*",
-      },
+      headers,
+      method: "GET",
+    });
+
+    setInputFetchResponse(await response.text());
+    console.log("--- response---", response, inputFetchResponse);
+
+    fetch("https://sv443.net/jokeapi/v2/joke/Programming", {
+      mode: "no-cors",
+      method: "GET",
+      headers: { "Content-Type": "text/html" },
     })
-      .then(function (response) {
-        // The API call was successful!
-        console.log("response", response);
-        return response.json();
-      })
-      .then(function (data) {
-        // This is the JSON from our response
-        console.log("DATA", data);
-        return data;
-      })
-      .catch(function (err) {
-        // There was an error
-        console.warn("Something went wrong.", err);
-      });
-
-    console.log("r---", r);
-
-    fetch("https://sv443.net/jokeapi/v2/joke/Programming")
       // Convert response to JSON format
-      .then((response) => response.json())
+      .then((response) => response.text())
       // Log the response JSON
-      .then((jsonData) => console.log(jsonData))
+      .then((jsonData) => console.log("thing", jsonData))
       .catch((error) => {
         // If promise gets rejected
         // log the error to console
         console.log(error);
       });
 
-    // const urlString = targetUrl.trim();
-    // console.log("headers", headers);
-    // const response = await fetch(urlString, {
-    //   mode: "no-cors",
-    //   referrerPolicy: "no-referrer",
-    //   headers: {
-    //     "Content-Type": "text/html",
-    //     "Access-Control-Allow-Headers": "*",
-    //   },
-    // });
-    // const content = response.text();
-
-    // console.log("RESPONSE", response);
-    // console.log("CONTENT", content);
+    const fetchMetaResponse = await fetchMeta("https://luisc.xyz");
+    console.log("fetchMetaResponse", fetchMetaResponse, {
+      mode: "no-cors",
+      method: "GET",
+      headers: { "Content-Type": "text/html" },
+    });
   };
-
-  // const test = async () => {
-  //   await fetch(targetUrl, { mode: "no-cors" });
-  // };
-
-  // try {
-  //   const response = test();
-  //   if (!response.ok) {
-  //     throw Error(`${response.status} ${response.statusText}`);
-  //   }
-  //   // Read the response as json.
-  //   console.log("TEST", response);
-  // } catch (error) {
-  //   console.log("Looks like there was a problem: ", error);
-  // }
 
   return (
     <div className="App">
@@ -95,6 +66,10 @@ function App() {
       <button type="button" onClick={fetchUrlImage}>
         Fetch
       </button>
+      <div>
+        <p>Response</p>
+        <p>{inputFetchResponse}</p>
+      </div>
     </div>
   );
 }
